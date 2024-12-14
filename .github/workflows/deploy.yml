@@ -3,7 +3,7 @@ name: Deploy JHipster Application to AWS
 on:
   push:
     branches:
-      - sandbox
+      - main
 
 env:
   AWS_REGION: ap-south-1
