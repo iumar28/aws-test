@@ -65,6 +65,10 @@ jobs:
           echo "${{ secrets.AWS_PRIVATE_KEY }}" > ~/.ssh/aws-key.pem
           chmod 600 ~/.ssh/aws-key.pem
 
+      - name: Add EC2 instance to known_hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 13.60.42.147 >> ~/.ssh/known_hosts
       - name: Deploy to EC2
         run: |
           scp -i ~/.ssh/aws-key.pem monorsm-0.0.1-SNAPSHOT.jar ec2-user@13.60.42.147:/home/ec2-user/
