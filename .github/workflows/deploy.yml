@@ -69,7 +69,7 @@ jobs:
           echo "${{ secrets.AWS_PRIVATE_KEY }}" > ~/.ssh/aws-key2.pem
           chmod 600 ~/.ssh/aws-key2.pem
       - name: Verify SSH Key File
-  run: ls -l ~/.ssh/aws-key2.pem
+        run: ls -l ~/.ssh/aws-key2.pem
 
       - name: Add EC2 instance to known_hosts
         run: |
