@@ -66,8 +66,8 @@ jobs:
       - name: Create SSH key for EC2
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.AWS_PRIVATE_KEY }}" > ~/.ssh/aws-key.pem
-          chmod 600 ~/.ssh/aws-key.pem
+          echo "${{ secrets.AWS_PRIVATE_KEY }}" > ~/.ssh/aws-key2.pem
+          chmod 600 ~/.ssh/aws-key2.pem
 
       - name: Add EC2 instance to known_hosts
         run: |
@@ -75,9 +75,11 @@ jobs:
           ssh-keyscan -H 16.170.221.137 >> ~/.ssh/known_hosts
       - name: Deploy to EC2
         run: |
-          scp -i ~/.ssh/aws-key.pem monorsm-0.0.1-SNAPSHOT.jar ec2-user@16.170.221.137:/home/ec2-user/
-          ssh -i ~/.ssh/aws-key.pem ec2-user@16.170.221.137 << EOF
-          sudo yum update -y
-          sudo yum install java-17-openjdk -y
-          nohup java -jar /home/ec2-user/monorsm-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
+          scp -i ~/.ssh/aws-key.pem monorsm-0.0.1-SNAPSHOT.jar ubuntu@16.170.221.137:/home/ubuntu/
+          ssh -i ~/.ssh/aws-key.pem ubuntu@16.170.221.137 << EOF
+          ssh -i ~/.ssh/aws-key.pem ubuntu@16.170.221.137 << EOF
+          sudo apt update -y
+          sudo apt install openjdk-17-jdk -y
+          nohup java -jar /home/ubuntu/monorsm-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
           EOF
+
