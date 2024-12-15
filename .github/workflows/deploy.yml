@@ -61,7 +61,7 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-      # - name: Print Environment Variables
+      # - name: Print Environment Variables    .
       #     run: printenv
       - name: Create SSH key for EC2
         run: |
