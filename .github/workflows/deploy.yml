@@ -45,9 +45,6 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
-    # permissions:
-    #   id-token: write
-    #   contents: read
 
     steps:
       - name: Download Build Artifact
@@ -61,26 +58,36 @@ jobs:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-east-1
-      # - name: Print Environment Variables    .
-      #     run: printenv
+
       - name: Create SSH key for EC2
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.AWS_PRIVATE_KEY }}" > ~/.ssh/aws-key2.pem
           chmod 600 ~/.ssh/aws-key2.pem
-      - name: Verify SSH Key File
-        run: ls -l ~/.ssh/aws-key2.pem
 
       - name: Add EC2 instance to known_hosts
         run: |
           mkdir -p ~/.ssh
           ssh-keyscan -H 16.170.221.137 >> ~/.ssh/known_hosts
+
       - name: Deploy to EC2
         run: |
           scp -i ~/.ssh/aws-key2.pem monorsm-0.0.1-SNAPSHOT.jar ubuntu@16.170.221.137:/home/ubuntu/
-          ssh -i ~/.ssh/aws-key2.pem ubuntu@16.170.221.137 <<EOF
-          sudo apt update -y
-          sudo apt install openjdk-17-jdk -y
-          nohup java -jar /home/ubuntu/monorsm-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
-          EOF
+          scp -i ~/.ssh/aws-key2.pem -r . ubuntu@16.170.221.137:/home/ubuntu/
+          ssh -i ~/.ssh/aws-key2.pem ubuntu@16.170.221.137 << 'EOF'
+            # Update system and install dependencies
+            sudo apt update -y
+            sudo apt install -y openjdk-17-jdk nodejs npm docker.io
 
+            # Start the backend
+            nohup java -jar /home/ubuntu/monorsm-0.0.1-SNAPSHOT.jar > backend.log 2>&1 &
+
+            # Start Hazelcast if required
+            docker compose -f src/main/docker/hazelcast-management-center.yml up -d
+
+            # Start the frontend
+            cd /home/ubuntu
+            chmod +x ./npmw
+            ./npmw install
+            nohup ./npmw start > frontend.log 2>&1 &
+          EOF
