@@ -79,16 +79,16 @@ jobs:
         run: |
           scp -i ~/.ssh/aws-key2.pem monorsm-0.0.1-SNAPSHOT.jar ubuntu@16.170.221.137:/home/ubuntu/
           ssh -i ~/.ssh/aws-key2.pem ubuntu@16.170.221.137 <<EOF
-                      sudo apt update -y
-            sudo apt install -y openjdk-17-jdk nodejs npm docker.io
+          sudo apt update -y
+          sudo apt install -y openjdk-17-jdk nodejs npm docker.io
 
-            # Start backend
-            cd /home/ubuntu
-            nohup java -jar monorsm-0.0.1-SNAPSHOT.jar > backend.log 2>&1 &
+          # Start backend
+          cd /home/ubuntu
+          nohup java -jar monorsm-0.0.1-SNAPSHOT.jar > backend.log 2>&1 &
 
-            # Start frontend
-            cd /home/ubuntu
-            ./npmw install
-            nohup ./npmw start > frontend.log 2>&1 &
+          # Start frontend
+          cd /home/ubuntu
+          ./npmw install
+          nohup ./npmw start > frontend.log 2>&1 &
           EOF
 
