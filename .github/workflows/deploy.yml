@@ -68,6 +68,8 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.AWS_PRIVATE_KEY }}" > ~/.ssh/aws-key2.pem
           chmod 600 ~/.ssh/aws-key2.pem
+      - name: Verify SSH Key File
+        run: ls -l ~/.ssh/aws-key2.pem
 
       - name: Add EC2 instance to known_hosts
         run: |
@@ -76,8 +78,9 @@ jobs:
       - name: Deploy to EC2
         run: |
           scp -i ~/.ssh/aws-key2.pem monorsm-0.0.1-SNAPSHOT.jar ubuntu@16.170.221.137:/home/ubuntu/
-          ssh -i ~/.ssh/aws-key2.pem ubuntu@16.170.221.137 << EOF
+          ssh -i ~/.ssh/aws-key2.pem ubuntu@16.170.221.137 <<EOF
           sudo apt update -y
           sudo apt install openjdk-17-jdk -y
           nohup java -jar /home/ubuntu/monorsm-0.0.1-SNAPSHOT.jar > app.log 2>&1 &
           EOF
+
