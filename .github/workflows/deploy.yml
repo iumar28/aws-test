@@ -41,7 +41,8 @@ jobs:
           chmod +x ./npmw
           ./npmw install
           ./npmw run build
-          tar -czf frontend.tar.gz dist/
+      - name: Package Frontend
+        run: tar -czf frontend.tar.gz -C target/classes static
 
       - name: Upload Build Artifacts
         uses: actions/upload-artifact@v3
