@@ -78,16 +78,16 @@ jobs:
       - name: Add EC2 instance to known_hosts
         run: |
           mkdir -p ~/.ssh
-          ssh-keyscan -H 16.170.221.137 >> ~/.ssh/known_hosts
+          ssh-keyscan -H 16.16.217.105 >> ~/.ssh/known_hosts
 
       - name: Deploy Backend and Frontend to EC2
         run: |
           # Copy backend and frontend artifacts to EC2
-          scp -i ~/.ssh/aws-key2.pem monorsm-0.0.1-SNAPSHOT.jar ubuntu@16.170.221.137:/home/ubuntu/
-          scp -i ~/.ssh/aws-key2.pem frontend.tar.gz ubuntu@16.170.221.137:/home/ubuntu/
+          scp -i ~/.ssh/aws-key2.pem monorsm-0.0.1-SNAPSHOT.jar ubuntu@16.16.217.105:/home/ubuntu/
+          scp -i ~/.ssh/aws-key2.pem frontend.tar.gz ubuntu@16.16.217.105:/home/ubuntu/
           
           # Connect to EC2 and set up the environment
-          ssh -i ~/.ssh/aws-key2.pem ubuntu@16.170.221.137 <<EOF
+          ssh -i ~/.ssh/aws-key2.pem ubuntu@16.16.217.105 <<EOF
             # Update system and install dependencies
             sudo apt update -y
             sudo apt install -y openjdk-17-jdk nodejs npm
