@@ -33,24 +33,33 @@ jobs:
       - name: Grant execute permissions to Maven Wrapper
         run: chmod +x ./mvnw
 
-      - name: Build with Maven
+      - name: Build Backend with Maven
         run: ./mvnw -Pprod clean package -DskipTests
 
-      - name: Upload Build Artifact
+      - name: Build Frontend
+        run: |
+          chmod +x ./npmw
+          ./npmw install
+          ./npmw run build
+          tar -czf frontend.tar.gz dist/
+
+      - name: Upload Build Artifacts
         uses: actions/upload-artifact@v3
         with:
-          name: app-jar
-          path: target/monorsm-0.0.1-SNAPSHOT.jar
+          name: build-artifacts
+          path: |
+            target/monorsm-0.0.1-SNAPSHOT.jar
+            frontend.tar.gz
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
 
     steps:
-      - name: Download Build Artifact
+      - name: Download Build Artifacts
         uses: actions/download-artifact@v3
         with:
-          name: app-jar
+          name: build-artifacts
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
@@ -70,30 +79,24 @@ jobs:
           mkdir -p ~/.ssh
           ssh-keyscan -H 16.170.221.137 >> ~/.ssh/known_hosts
 
-      - name: Deploy to EC2
+      - name: Deploy Backend and Frontend to EC2
         run: |
-          # Copy only the build artifact
+          # Copy backend and frontend artifacts to EC2
           scp -i ~/.ssh/aws-key2.pem monorsm-0.0.1-SNAPSHOT.jar ubuntu@16.170.221.137:/home/ubuntu/
-          
-          # Copy frontend files (only necessary files like `package.json` and source code)
-          tar -czf frontend.tar.gz package.json package-lock.json src/ public/ npmw
           scp -i ~/.ssh/aws-key2.pem frontend.tar.gz ubuntu@16.170.221.137:/home/ubuntu/
           
-          ssh -i ~/.ssh/aws-key2.pem ubuntu@16.170.221.137 << 'EOF'
+          # Connect to EC2 and set up the environment
+          ssh -i ~/.ssh/aws-key2.pem ubuntu@16.170.221.137 <<EOF
             # Update system and install dependencies
             sudo apt update -y
-            sudo apt install -y openjdk-17-jdk nodejs npm docker.io
-
-            # Start the backend
+            sudo apt install -y openjdk-17-jdk nodejs npm
+            
+            # Start Backend
             nohup java -jar /home/ubuntu/monorsm-0.0.1-SNAPSHOT.jar > backend.log 2>&1 &
-
-            # Start Hazelcast if required
-            docker compose -f src/main/docker/hazelcast-management-center.yml up -d
-
-            # Start frontend
+            
+            # Extract and Start Frontend
             cd /home/ubuntu
             tar -xzf frontend.tar.gz
-            chmod +x ./npmw
-            ./npmw install
-            nohup ./npmw start > frontend.log 2>&1 &
-          EOF
+            cd dist/
+            nohup npx http-server -p 3000 > frontend.log 2>&1 &
+EOF
