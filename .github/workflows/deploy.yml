@@ -62,6 +62,9 @@ jobs:
         with:
           name: build-artifacts
 
+      - name: Verify Downloaded Artifacts
+        run: ls -l
+        
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
