@@ -99,4 +99,4 @@ jobs:
             tar -xzf frontend.tar.gz
             cd dist/
             nohup npx http-server -p 3000 > frontend.log 2>&1 &
-EOF
+            EOF
