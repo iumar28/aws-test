@@ -93,8 +93,8 @@ jobs:
                 scp -i ~/.ssh/aws-key2.pem target/*.jar ubuntu@16.16.217.105:/home/ubuntu/
                 scp -i ~/.ssh/aws-key2.pem frontend.tar.gz ubuntu@16.16.217.105:/home/ubuntu/
       
-    runs-on: ubuntu-latest
-    needs: build
+          runs-on: ubuntu-latest
+          needs: build
 
     steps:
       - name: Download Build Artifacts
