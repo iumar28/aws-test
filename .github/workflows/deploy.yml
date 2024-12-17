@@ -36,6 +36,9 @@ jobs:
       - name: Build Backend with Maven
         run: ./mvnw -Pprod clean package -DskipTests
 
+      - name: Verify Backend Build
+        run: ls -l target/
+
       - name: Build Frontend
         run: |
           chmod +x ./npmw
@@ -49,7 +52,7 @@ jobs:
         with:
           name: build-artifacts
           path: |
-            target/monorsm-0.0.1-SNAPSHOT.jar
+            **/monorsm-0.0.1-SNAPSHOT.jar
             frontend.tar.gz
 
   deploy:
@@ -63,7 +66,7 @@ jobs:
           name: build-artifacts
 
       - name: Verify Downloaded Artifacts
-        run: ls -l
+        run: ls -R
         
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
